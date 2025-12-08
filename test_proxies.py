@@ -1,6 +1,7 @@
 import requests
+from requests.exceptions import RequestException
 
-# 定义多个 SOCKS5 代理
+# 代理列表
 proxies_list = [
     "socks5://47.243.30.66:37469",
     "socks5://67.201.58.190:4145",
@@ -46,17 +47,32 @@ proxies_list = [
     "socks5://208.65.90.21:4145",
 ]
 
-for proxy in proxies_list:
-    proxies = {
-        "http": proxy,
-        "https": proxy,
-    }
+# 测试目标URL
+test_url = "https://www.google.com"
 
+# 设置代理检查
+def check_proxy(proxies):
     try:
-        response = requests.get("https://www.google.com", proxies=proxies, timeout=5)
+        # 尝试连接 Google，设置更长的超时时间并跳过SSL证书验证
+        response = requests.get(test_url, proxies=proxies, timeout=10, verify=False)
+        
         if response.status_code == 200:
-            print(f"代理 {proxy} 可用")
+            print(f"代理 {proxies['http']} 可用")
         else:
-            print(f"代理 {proxy} 不可用，状态码：{response.status_code}")
-    except requests.exceptions.RequestException as e:
-        print(f"代理 {proxy} 不可用，错误信息：{e}")
+            print(f"代理 {proxies['http']} 不可用，HTTP状态码：{response.status_code}")
+    except RequestException as e:
+        print(f"代理 {proxies['http']} 不可用，错误信息：{e}")
+
+def main():
+    for proxy in proxies_list:
+        # 设置代理
+        proxies = {
+            "http": proxy,
+            "https": proxy,
+        }
+        
+        # 调用测试函数
+        check_proxy(proxies)
+
+if __name__ == "__main__":
+    main()
