@@ -11,6 +11,7 @@ warnings.simplefilter('ignore', InsecureRequestWarning)
 test_url = 'https://www.google.com'
 
 def check_proxy(proxies):
+    response = None  # 确保在函数的任何地方都能访问到 response 变量
     try:
         # 发送请求，跳过证书验证
         response = requests.get(test_url, proxies=proxies, timeout=10, verify=False)
@@ -25,7 +26,7 @@ def check_proxy(proxies):
         print(f"代理 {proxies['http']} 不可用，错误信息：{e}")
     
     # 如果返回 429 错误码，表示请求频率过高
-    if response.status_code == 429:
+    if response and response.status_code == 429:
         print(f"代理 {proxies['http']} 被限流，等待一段时间后重试...")
         time.sleep(60)  # 等待 1 分钟
         check_proxy(proxies)  # 重新调用函数重试
